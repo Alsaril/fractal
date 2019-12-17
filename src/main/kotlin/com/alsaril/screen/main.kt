@@ -1,4 +1,4 @@
-package com.alsaril
+package com.alsaril.screen
 
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
@@ -6,6 +6,7 @@ import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.tan
 
 data class Line(
     var x1: Double,
@@ -19,8 +20,8 @@ data class Line(
 
 fun main() {
     val lines = Collections.synchronizedList(LinkedList<Line>())
-    val version = AtomicInteger()
-    val root = Line(-50.0, -50.0, 50.0, -50.0, null, 0, 0)
+    val version = AtomicInteger(1)
+    val root = Line(-50.0, 50.0, 50.0, 50.0, null, 0, 0)
     lines.add(root)
 
     val w = 800
@@ -33,9 +34,9 @@ fun main() {
             if (l.version != version.get()) {
                 relocate(l, version.get())
             }
-            repeat(4) {
+            repeat(reflections) {
                 screen.reset()
-                screen.rotate(90 * it)
+                screen.rotate(360.0 / reflections * it)
                 screen.scale(scale)
                 screen.translate(tx, ty)
                 p.drawLine(l.x1, l.y1, l.x2, l.y2)
@@ -66,6 +67,18 @@ fun main() {
                 }
                 'x' -> {
                     FACTOR -= 0.1
+                    version.incrementAndGet()
+                }
+                'r' -> {
+                    reflections++
+                    root.y1 = 50.0 / tan(Math.PI / reflections)
+                    root.y2 = 50.0 / tan(Math.PI / reflections)
+                    version.incrementAndGet()
+                }
+                'f' -> {
+                    reflections--
+                    root.y1 = 50.0 / tan(Math.PI / reflections)
+                    root.y2 = 50.0 / tan(Math.PI / reflections)
                     version.incrementAndGet()
                 }
             }
@@ -165,10 +178,12 @@ fun update(lines: MutableList<Line>, version: Int) {
 }
 
 @Volatile
-var FACTOR = 5.0
+var FACTOR = -5.0
 @Volatile
 var scale = 1.0
 @Volatile
 var tx = 400.0
 @Volatile
 var ty = 400.0
+@Volatile
+var reflections = 4

@@ -1,4 +1,4 @@
-package com.alsaril
+package com.alsaril.screen
 
 import org.apache.commons.math3.linear.MatrixUtils
 import java.awt.Dimension
@@ -14,7 +14,7 @@ interface Screen {
     fun show()
     fun redraw()
     fun scale(factor: Double)
-    fun rotate(angle: Int)
+    fun rotate(angle: Double)
     fun translate(tx: Double, ty: Double)
     fun reset()
     fun addMouseListener(l: MouseListener)
@@ -62,10 +62,16 @@ class JScreen(w: Int, h: Int) : Screen {
     }
 
     @Synchronized
-    override fun rotate(angle: Int) {
+    override fun rotate(angle: Double) {
         val sin = sin(angle / 180.0 * Math.PI)
         val cos = cos(angle / 180.0 * Math.PI)
-        val rotateMatrix = MatrixUtils.createRealMatrix(arrayOf(doubleArrayOf(cos, -sin, 0.0), doubleArrayOf(sin, cos, 0.0), doubleArrayOf(0.0, 0.0, 1.0)))
+        val rotateMatrix = MatrixUtils.createRealMatrix(
+            arrayOf(
+                doubleArrayOf(cos, -sin, 0.0),
+                doubleArrayOf(sin, cos, 0.0),
+                doubleArrayOf(0.0, 0.0, 1.0)
+            )
+        )
         state = rotateMatrix.multiply(state)
     }
 
@@ -104,6 +110,7 @@ class JScreen(w: Int, h: Int) : Screen {
     private val painter = object : Painter {
         @Volatile
         private var graphics: Graphics? = null
+
         override fun clear() {
             graphics?.clearRect(0, 0, w, h)
         }
@@ -121,8 +128,8 @@ class JScreen(w: Int, h: Int) : Screen {
             val realY2 = s_.getEntry(1, 0).toInt()
 
             //if (contains(realX1, realY1) || contains(realX2, realY2)) {
-                graphics?.drawLine(realX1, realY1, realX2, realY2)
-           // }
+            graphics?.drawLine(realX1, realY1, realX2, realY2)
+            // }
         }
 
         fun setGraphics(g: Graphics) {
