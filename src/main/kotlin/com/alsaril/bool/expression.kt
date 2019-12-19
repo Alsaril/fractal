@@ -6,6 +6,7 @@ import java.util.*
 
 interface Expression {
     fun eval(args: BooleanArray): Boolean
+    fun diff(args: BooleanArray, actual: Boolean) = if (eval(args) xor actual) 1 else 0
     override fun toString(): String
 }
 
@@ -52,8 +53,8 @@ class OperatorExpression(
     }
 
     companion object {
-         fun isLeaf(expression: Expression) = expression is TrueExpression || expression is VariableExpression
-         fun isNode(expression: Expression) = expression is OperatorExpression
+        fun isLeaf(expression: Expression) = expression is TrueExpression || expression is VariableExpression
+        fun isNode(expression: Expression) = expression is OperatorExpression
     }
 }
 
@@ -63,6 +64,7 @@ class ExpressionGenetics(private val n: Int, private val maxDepth: Int, private 
     override fun mutate(t: Expression) = mutateExpression(t, n, maxDepth, random).apply {
         //println("was    $t\nbecame $this")
     }
+
     override fun cross(a: Expression, b: Expression) = crossExpressions(a, b, random)
     override fun reduce(t: Expression) = reduceExpression(t, n, maxDepth, random)
     override fun random() = randomExpression(n, maxDepth, random)
